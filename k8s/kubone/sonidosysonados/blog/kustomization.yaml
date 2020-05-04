@@ -1,0 +1,12 @@
+namespace: sonidosysonados
+
+commonLabels:
+  app: blog
+
+resources:
+- blog-deployment.yaml
+- blog-pvc.yaml
+- blog-service.yaml
+- blog-ingress.yaml
+- sensible/blog-db-credentials.yaml
+- sensible/blog-config.yaml
