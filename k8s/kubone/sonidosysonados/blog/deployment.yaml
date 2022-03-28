@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blog
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: blog
+        tier: wordpress
+    spec:
+      hostAliases:
+        - ip: "127.0.0.1"
+          hostnames:
+            - wordpress
+      volumes:
+        - name: html
+          emptyDir: {}
+      containers:
+        - image: eu.gcr.io/kubone/sonidosysonados/cms/nginx:0.1.0
+          name: nginx
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          ports:
+            - containerPort: 80
+              name: wordpress
+          volumeMounts:
+            - name: html
+              mountPath: /var/www/html
+        - image: eu.gcr.io/kubone/sonidosysonados/cms/wp:0.1.0
+          name: wordpress
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: html
+              mountPath: /var/www/html
+          env:
+            - name: WORDPRESS_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: blog-db-credentials
+                  key: WORDPRESS_DB_HOST
+            - name: WORDPRESS_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: blog-db-credentials
+                  key: WORDPRESS_DB_NAME
+            - name: WORDPRESS_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: blog-db-credentials
+                  key: WORDPRESS_DB_USER
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: blog-db-credentials
+                  key: WORDPRESS_DB_PASSWORD
+            - name: WORDPRESS_CONFIG_EXTRA
+              valueFrom:
+                secretKeyRef:
+                  name: blog-config
+                  key: WORDPRESS_CONFIG_EXTRA

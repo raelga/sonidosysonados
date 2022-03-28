@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: blog
+spec:
+  entrypoints:
+    - https
+  routes:
+    - kind: Rule
+      match: Host(`sonidosysonados.com`)
+      services:
+        - name: blog
+          port: 80
+    - kind: Rule
+      match: Host(`www.sonidosysonados.com`)
+      services:
+        - name: blog
+          port: 80
+  tls: {}
